@@ -131,21 +131,11 @@ class Puzzle:
                 if not any(node.puzzle == i.puzzle for node in self.open): #i.puzzle not in self.open:
                     self.open.append(i)
                 else:
-                    print('matched')
-                    print(i.puzzle, self.open[3].puzzle)
                     for j in self.open:
                         if j.puzzle == i.puzzle:
                             if j.f > i.f:
                                 del self.open[j]
                                 self.open.append(i)
-
-                    '''index = self.open.puzzle.index(i.puzzle)
-                    
-                    print(index)
-                    if self.open[index].f > i.f:
-                        del self.open[index]
-                        self.open.append(i)
-                        print(self.open[index].f, i.f)'''
 
 
 
