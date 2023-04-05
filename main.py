@@ -114,6 +114,8 @@ class Puzzle:
         print('\n')
         print('Solution: ')
 
+        iter = 0
+
         while True:
             current = self.open[0]
             print('')
@@ -128,9 +130,9 @@ class Puzzle:
                 break
             for i in current.get_child():
                 i.f = self.cal_f(i, goal)
-                if not any(node.puzzle == i.puzzle for node in self.open): #i.puzzle not in self.open:
+                if not any(node.puzzle == i.puzzle for node in self.open) and not any(node.puzzle == i.puzzle for node in self.closed): #i.puzzle not in self.open:
                     self.open.append(i)
-                else:
+                elif any(node.puzzle == i.puzzle for node in self.open):
                     for j in self.open:
                         if j.puzzle == i.puzzle:
                             if j.f > i.f:
@@ -141,13 +143,16 @@ class Puzzle:
 
             self.closed.append(current)
 
+            iter += 1
+
             del self.open[0]
-            for i in self.open:
-                print(i.puzzle)
+           # for i in self.open:
+             #   print(i.puzzle)
 
             # sort open list based of f value
             self.open.sort(key = lambda x:x.f, reverse = False)
 
+        print('iterations: ', iter)
 
 puz = Puzzle(3) # n = 3
 puz.solve_puzzle()
