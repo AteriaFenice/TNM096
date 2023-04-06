@@ -3,6 +3,11 @@
 # Data structure: two lists, "open" & "closed"
 # Open list = Nodes left to explore, explores most optimal with help of f = heuristics + path cost
 # Closed list = Explored nodes
+from itertools import chain
+from queue import PriorityQueue
+import time
+
+heuristics = input('Enter heuristic method: \nh1: Misplaced tiles \nh2: Manhattan Distance\n')
 
 ''' Define one Node and generate child states from the current state '''
 class Node: 
@@ -12,6 +17,9 @@ class Node:
         self.puzzle = puzzle # 
         self.level = level # level in the tree
         self.f = f # h+g (h = nr of misplaced tiles, g = the path cost)
+
+    def __lt__(self, other):
+        return self.f < other.f
 
     ''' Generate child nodes by moving all possible directions (moving blank space) '''
     def get_child(self):
@@ -58,16 +66,26 @@ class Node:
             for j in range(0, len(self.puzzle)):
                 if puzzle[i][j] == blank:
                     return i, j
+
+    ''' ????? '''       
+    def get_key(self):
+        flatten_list = list(chain.from_iterable(self.puzzle))
+        result = ''.join(str(e) for e in flatten_list)
+
+        return result
    
     
 ''' Accepts the initial goal states of the N-Puzzle problem
     and provides the functions to calculate the f-score of any given node(state) '''
 class Puzzle:
+
     ''' Initialize the puzzle ''' 
     def __init__(self, size):
         self.n = size # Size of the puzzle
         self.open = [] # Initialize the open list to empty
         self.closed = [] # Intialize the closed list to empty
+        '''self.open = PriorityQueue()
+        self.closed = {}'''
         
     ''' Accepts puzzle from user '''
     def define_puzzle(self):
@@ -78,16 +96,27 @@ class Puzzle:
         return puz
     
     ''' Heurisitc function to calculate heuristic value f(x) = h(x) + g(x) '''
-    def cal_f(self, start, goal): 
-        return self.cal_h(start.puzzle, goal) + start.level
+    def cal_f(self, start, goal):
+        if heuristics == 'h1': 
+          return self.cal_h1(start.puzzle, goal) + start.level
+        
+        if heuristics == 'h2':
+          return self.cal_h2(start.puzzle, goal) + start.level
 
     ''' Calcualtes the different between the given puzzles '''
-    def cal_h(self, start, goal):
-        counter = 0; 
+    def cal_h1(self, start, goal):
+        counter = 0
         for i in range(0, self.n): #row
             for j in range(0, self.n): #col
                 if start[i][j] != goal[i][j] and start[i][j] != '_':
                     counter += 1 # Counts all squares that are in the wrong position
+
+        return counter
+
+    ''' Manhattan Distance '''
+    def cal_h2(self, start, goal):
+        counter = 0
+
 
         return counter
         
@@ -98,6 +127,10 @@ class Puzzle:
         # Enter own goal state
         #print('Enter puzzle at goal state')
         #goal = self.define_puzzle()
+  
+        #heuristics = heuristics.replace(' ', '')
+
+        print('h: ', heuristics)
         
         # Pre-defined goal, increasing order
         goal = [['1', '2', '3'], ['4', '5', '6'],['7', '8', '_']]
@@ -110,6 +143,12 @@ class Puzzle:
 
         # Put start node in open list
         self.open.append(start)
+        #self.open.put(start)
+
+        # If open is empty exit the code
+        if not self.open:
+            print('ERROR.')
+            exit()
 
         print('\n')
         print('Solution: ')
@@ -118,6 +157,8 @@ class Puzzle:
 
         while True:
             current = self.open[0]
+            #current = self.open.get()
+
             print('')
 
             for i in current.puzzle:
@@ -126,22 +167,47 @@ class Puzzle:
                 print('')
 
             # If goal node is reached
-            if(self.cal_h(current.puzzle, goal) == 0): # reached if difference between current state and goal is 0
-                break
+            if heuristics == 'h1':
+                if(self.cal_h1(current.puzzle, goal) == 0): # reached if difference between current state and goal is 0
+                    break
+            if heuristics == 'h2':
+                if(self.cal_h2(current.puzzle, goal) == 0): # reached if difference between current state and goal is 0
+                    break
+
             for i in current.get_child():
                 i.f = self.cal_f(i, goal)
-                if not any(node.puzzle == i.puzzle for node in self.open) and not any(node.puzzle == i.puzzle for node in self.closed): #i.puzzle not in self.open:
-                    self.open.append(i)
+                #self.open.put(i)
+                #if not any(node.puzzle == i.puzzle for node in self.open) and not any(node.puzzle == i.puzzle for node in self.closed): #i.puzzle not in self.open:
+                    #self.open.append(i)
+                    #self.open.put(i)
+                if any(node.puzzle == i.puzzle for node in self.closed):
+                    for j in self.closed:
+                        if j.puzzle == i.puzzle and j.f > i.f: 
+                            index = self.closed.index(j)
+                            del self.closed[index]
+                            self.open.append(i)
+                            print('delete closed node')
+
                 elif any(node.puzzle == i.puzzle for node in self.open):
                     for j in self.open:
-                        if j.puzzle == i.puzzle:
-                            if j.f > i.f:
-                                del self.open[j]
-                                self.open.append(i)
-
-
+                        if j.puzzle == i.puzzle and j.f > i.f:
+                            index = self.open.index(j)
+                            del self.open[index]
+                            self.open.append(i)
+                            #self.open[j] = self.open.pop()
+                            #self.open.put(i)
+                            print('rewrite open node')
+                else:
+                    self.open.append(i)
+                    #print('add node to open')
+                
+                '''while not self.open.empty():
+                    if i.puzzle not in self.open.get() and i.puzzle not in self.closed.get():
+                        self.open.put(i)'''
+                
 
             self.closed.append(current)
+            #self.closed[current.get_key()] = current
 
             iter += 1
 
@@ -154,5 +220,12 @@ class Puzzle:
 
         print('iterations: ', iter)
 
+st = time.process_time()
+
 puz = Puzzle(3) # n = 3
 puz.solve_puzzle()
+
+et = time.process_time()
+
+print('time: ', et-st, 'seconds')
+
