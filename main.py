@@ -13,54 +13,50 @@ heuristics = input('Enter heuristic method: \nh1: Misplaced tiles \nh2: Manhatta
 ''' Define one Node and generate child states from the current state '''
 class Node: 
     ''' Initialize a node '''
-    def __init__(self, puzzle, level, f, parent = None):
+    def __init__(self, puzzle, level, h, parent = None):
         # Initialize the node
         self.puzzle = puzzle # 
         self.level = level # level in the tree
-        self.f = f # h+g (h = nr of misplaced tiles, g = the path cost)
+        self.h = h # h+g (h = nr of misplaced tiles, g = the path cost)
         self.parent = parent
 
     def __lt__(self, other): # less than operator
-        return self.f < other.f
+        return self.f() < other.f()
     
     '''Heurisitc function to calculate heuristic value f(x) = h(x) + g(x)'''
-    def cal_f(self, start, goal):
-        if heuristics == 'h1': 
-          return self.cal_h1(start.puzzle, goal) + start.level
+    def f(self):
+        return self.level + self.h
         
-        if heuristics == 'h2':
-          return self.cal_h2(start.puzzle, goal) + start.level
-        
-    ''' Calcualtes the different between the given puzzles '''
-    def cal_h1(self, start, goal):
-        counter = 0
-        for i in range(0, 3): #row
-            for j in range(0, 3): #col
-                if start[i][j] != goal[i][j] and start[i][j] != '_':
-                    counter += 1 # Counts all squares that are in the wrong position
-        return counter
+''' Calcualtes the different between the given puzzles '''
+def h1(start, goal):
+    counter = 0
+    for i in range(0, 3): #row
+        for j in range(0, 3): #col
+            if start[i][j] != goal[i][j] and start[i][j] != '_':
+                counter += 1 # Counts all squares that are in the wrong position
+    return counter
 
-    ''' Manhattan Distance '''
-    def cal_h2(self, start, goal):
-        counter = 0
+''' Manhattan Distance '''
+def h2(start, goal):
+    counter = 0
 
-        for i in range(0, 3): #row
-            for j in range(0, 3): #col
-                if start[i][j] != goal[i][j] and start[i][j] != '_':
+    for i in range(0, 3): #row
+        for j in range(0, 3): #col
+            if start[i][j] != goal[i][j] and start[i][j] != '_':
 
-                    for x in range(0, 3): 
-                        for y in range(0, 3):
-                            if goal[x][y] == start[i][j]:
-                                x_pos = x
-                                y_pos = y
-                                break
+                for x in range(0, 3): 
+                    for y in range(0, 3):
+                        if goal[x][y] == start[i][j]:
+                            x_pos = x
+                            y_pos = y
+                            break
 
-                    # calculate distance 
-                    manhattan = abs(i-x_pos) + abs(j-y_pos)
+                # calculate distance 
+                manhattan = abs(i-x_pos) + abs(j-y_pos)
 
-                    counter += manhattan # Counts all manhattan distances of squares that are in the wrong position 
+                counter += manhattan # Counts all manhattan distances of squares that are in the wrong position 
 
-        return counter
+    return counter
 
 ''' Generate child nodes by moving all possible directions (moving blank space) '''
 def get_child(self):
@@ -118,9 +114,8 @@ def move(puzzle, x1, y1, x2, y2):
     return result'''
     
     
-def a_star(start, goal, h):
-
-    start = Node(start,0,0)
+def a_star(start_puzzle, goal_puzzle, heuristics):
+    start = Node(start_puzzle, level = 0, h = heuristics(start_puzzle, goal_puzzle))
     #goal = Node(goal)
 
     open = PriorityQueue()
@@ -131,7 +126,7 @@ def a_star(start, goal, h):
     while not open.empty():
         current = open.get()
         
-        if current.puzzle == goal:
+        if current.puzzle == goal_puzzle:
             path = []
             while current.parent is not None:
                 path.append(current.puzzle)
@@ -146,7 +141,7 @@ def a_star(start, goal, h):
             child_puzzle = tuple(map(tuple, child))
 
             if child_puzzle not in closed:
-                child_node = Node(child, level=current.level+1, f=current.cal_f(start, goal), parent = current)
+                child_node = Node(child, level=current.level+1, h = heuristics(start_puzzle, goal_puzzle), parent = current)
                 open.put(child_node)
 
     return None
@@ -176,7 +171,7 @@ goal = [['1', '2', '3'], ['4', '5', '6'],['7', '8', '_']]
 print('\nGoal State, increasing order:')
 print("1 2 3\n4 5 6\n7 8 _")
 
-path = a_star(start, goal, heuristics)
+path = a_star(start, goal, eval(heuristics))
 
 if path is not None:
     print('Number of moves:', len(path)-1)
