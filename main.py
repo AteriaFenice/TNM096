@@ -117,6 +117,21 @@ class Puzzle:
     def cal_h2(self, start, goal):
         counter = 0
 
+        for i in range(0, self.n): #row
+            for j in range(0, self.n): #col
+                if start[i][j] != goal[i][j] and start[i][j] != '_':
+
+                    for x in range(0, self.n): 
+                        for y in range(0, self.n):
+                            if goal[x][y] == start[i][j]:
+                                x_pos = x
+                                y_pos = y
+                                break
+
+                    # calculate distance 
+                    manhattan = abs(i-x_pos) + abs(j-y_pos)
+
+                    counter += manhattan # Counts all manhattan distances of squares that are in the wrong position 
 
         return counter
         
@@ -186,7 +201,7 @@ class Puzzle:
                             index = self.closed.index(j)
                             del self.closed[index]
                             self.open.append(i)
-                            print('delete closed node')
+                            #print('delete closed node')
 
                 elif any(node.puzzle == i.puzzle for node in self.open):
                     for j in self.open:
@@ -196,7 +211,7 @@ class Puzzle:
                             self.open.append(i)
                             #self.open[j] = self.open.pop()
                             #self.open.put(i)
-                            print('rewrite open node')
+                            #print('rewrite open node')
                 else:
                     self.open.append(i)
                     #print('add node to open')
@@ -212,7 +227,7 @@ class Puzzle:
             iter += 1
 
             del self.open[0]
-           # for i in self.open:
+            #for i in self.open:
              #   print(i.puzzle)
 
             # sort open list based of f value
@@ -229,3 +244,4 @@ et = time.process_time()
 
 print('time: ', et-st, 'seconds')
 
+# make heap queue
