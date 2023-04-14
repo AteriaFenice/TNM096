@@ -171,7 +171,11 @@ goal = [['1', '2', '3'], ['4', '5', '6'],['7', '8', '_']]
 print('\nGoal State, increasing order:')
 print("1 2 3\n4 5 6\n7 8 _")
 
+st = time.time() # Start time
+
 path = a_star(start, goal, eval(heuristics))
+
+et = time.time() # End time
 
 if path is not None:
     print('Number of moves:', len(path)-1)
@@ -189,6 +193,9 @@ if path is not None:
                 print( i[row][0], i[row][1], i[row][2])
             print()
         counter += 1
+
+    print("time: ", et-st, 's')
+    
 else: 
     print('no solution found')
 
