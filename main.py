@@ -182,9 +182,12 @@ if path is not None:
     '''
     counter = 0
     for i in path:
-        print('Step: ', counter)
-        print(i)
-        print()
+        
+        if counter != 0:
+            print('Step: ', counter)
+            for row in range(0,3):
+                print( i[row][0], i[row][1], i[row][2])
+            print()
         counter += 1
 else: 
     print('no solution found')
