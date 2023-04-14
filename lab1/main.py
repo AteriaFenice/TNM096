@@ -1,21 +1,20 @@
 # A* Search Algorithm 
 # h1 - Nr of missplaced tiles; number of squares that are not in the right place. 
-# Data structure: two lists, "open" & "closed"
+# Data structure: "open"=priority queue & "closed"=set
 # Open list = Nodes left to explore, explores most optimal with help of f = heuristics + path cost
 # Closed list = Explored nodes
-from itertools import chain
 from queue import PriorityQueue
 import time
 import copy
 
-heuristics = input('Enter heuristic method: \nh1: Misplaced tiles \nh2: Manhattan Distance\n')
+heuristics = input('Enter heuristic method: \nh1: Misplaced tiles \nh2: Manhattan Distance\n') #h1 or h2
 
 ''' Define one Node and generate child states from the current state '''
 class Node: 
     ''' Initialize a node '''
     def __init__(self, puzzle, level, h, parent = None):
         # Initialize the node
-        self.puzzle = puzzle # 
+        self.puzzle = puzzle # the state
         self.level = level # level in the tree
         self.h = h # h+g (h = nr of misplaced tiles, g = the path cost)
         self.parent = parent
@@ -94,20 +93,19 @@ def move(puzzle, x1, y1, x2, y2):
         return None # If trying to move the empty tile out of bounds return none
      
 def a_star(start_puzzle, goal_puzzle, heuristics):
-    start = Node(start_puzzle, level = 0, h = heuristics(start_puzzle, goal_puzzle))
-    #goal = Node(goal)
+    start = Node(start_puzzle, level = 0, h = heuristics(start_puzzle, goal_puzzle)) # create start node
 
-    open = PriorityQueue()
-    open.put(start)
+    open = PriorityQueue() # create open, sort by least f first
+    open.put(start) # put start node in list
 
-    closed = set()
+    closed = set() # create closed list, no duplicates
 
-    it = 0 
+    it = 0 # count iterations
 
     while not open.empty():
-        current = open.get()
+        current = open.get() # get first node in queue
         
-        if current.puzzle == goal_puzzle:
+        if current.puzzle == goal_puzzle: # if solved, get path
             path = []
             while current.parent is not None:
                 path.append(current.puzzle)
@@ -119,15 +117,15 @@ def a_star(start_puzzle, goal_puzzle, heuristics):
             print("iterations: ", it)
             return path
         
-        closed.add(tuple(map(tuple,current.puzzle)))
-        it += 1
+        closed.add(tuple(map(tuple,current.puzzle))) # put current in closed
+        it += 1 # add iteration
 
-        for child in get_child(current):
+        for child in get_child(current): # find curretns children
             child_puzzle = tuple(map(tuple, child))
 
             if child_puzzle not in closed:
-                child_node = Node(child, level=current.level+1, h = heuristics(start_puzzle, goal_puzzle), parent = current)
-                open.put(child_node)
+                child_node = Node(child, level=current.level+1, h = heuristics(start_puzzle, goal_puzzle), parent = current) # create child nodes
+                open.put(child_node) # put in open if not in closed list
 
     return None
 
@@ -152,11 +150,11 @@ print("1 2 3\n4 5 6\n7 8 _")
 
 st = time.time() # Start time
 
-path = a_star(start, goal, eval(heuristics))
+path = a_star(start, goal, eval(heuristics)) # solve puzzle with a*, returns path solution
 
 et = time.time() # End time
 
-if path is not None:
+if path is not None: #prints path solution
     print('Number of moves:', len(path)-1)
     print()
 
@@ -175,6 +173,4 @@ if path is not None:
 else: 
     print('no solution found')
 
-#print('solved puzzle!')
-#print('nr of iterations: ', it)
 
