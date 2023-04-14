@@ -92,28 +92,7 @@ def move(puzzle, x1, y1, x2, y2):
         return temp_puzzle # returns the puzzle with the new moved tiles
     else:
         return None # If trying to move the empty tile out of bounds return none
-
-''' Copy function to create a copy of the current puzzle matrix '''
-'''def copy(root): # root of the puzzle that is the input
-    temp = [] 
-    for i in root: 
-        t = []
-        for j in i:
-            t.append(j) # append node to row
-        temp.append(t) # append row to matrix
-
-    return temp'''
-
-
-
-''' ????? '''       
-'''def get_key(self):
-    flatten_list = list(chain.from_iterable(self.puzzle))
-    result = ''.join(str(e) for e in flatten_list)
-
-    return result'''
-    
-    
+     
 def a_star(start_puzzle, goal_puzzle, heuristics):
     start = Node(start_puzzle, level = 0, h = heuristics(start_puzzle, goal_puzzle))
     #goal = Node(goal)
@@ -122,6 +101,8 @@ def a_star(start_puzzle, goal_puzzle, heuristics):
     open.put(start)
 
     closed = set()
+
+    it = 0 
 
     while not open.empty():
         current = open.get()
@@ -133,9 +114,13 @@ def a_star(start_puzzle, goal_puzzle, heuristics):
                 current = current.parent
             path.append(start)
             path.reverse()
+
+            print()
+            print("iterations: ", it)
             return path
         
         closed.add(tuple(map(tuple,current.puzzle)))
+        it += 1
 
         for child in get_child(current):
             child_puzzle = tuple(map(tuple, child))
@@ -156,14 +141,8 @@ def define_puzzle():
 
 
 print('Enter puzzle at start state:')
+# Enter puzzle to solve
 start = define_puzzle()
-# Enter own goal state
-#print('Enter puzzle at goal state')
-#goal = self.define_puzzle()
-
-#heuristics = heuristics.replace(' ', '')
-
-#print('h: ', heuristics)
 
 # Pre-defined goal, increasing order
 goal = [['1', '2', '3'], ['4', '5', '6'],['7', '8', '_']]
@@ -179,11 +158,8 @@ et = time.time() # End time
 
 if path is not None:
     print('Number of moves:', len(path)-1)
-    '''for i, puzzle in enumerate(path):
-        print(f'Step {i}:')
-        for row in puzzle:
-            print(row)
-    '''
+    print()
+
     counter = 0
     for i in path:
         
@@ -195,192 +171,10 @@ if path is not None:
         counter += 1
 
     print("time: ", et-st, 's')
-    
+
 else: 
     print('no solution found')
 
 #print('solved puzzle!')
 #print('nr of iterations: ', it)
 
-'''path = a_star(start_state, goal_state, h2)
-    if path is not None:
-        print('Number of moves:', len(path)-1)
-        for i, state in enumerate(path):
-            print(f'Step {i}:')
-            for row in state:
-                print(row)
-            print()'''
-        
-
-    
-''' Accepts the initial goal states of the N-Puzzle problem
-    and provides the functions to calculate the f-score of any given node(state) '''
-'''class Puzzle:
-
-    Initialize the puzzle
-    def __init__(self, size):
-        self.n = size # Size of the puzzle
-        self.open = [] # Initialize the open list to empty
-        self.closed = [] # Intialize the closed list to empty
-        self.open = PriorityQueue()
-        self.closed = {}
-        
-    Accepts puzzle from user
-    def define_puzzle(self):
-        puz = []
-        for i in range(0, self.n):
-            temp = input().split(' ')
-            puz.append(temp)
-        return puz
-    
- Heurisitc function to calculate heuristic value f(x) = h(x) + g(x)
-    def cal_f(self, start, goal):
-        if heuristics == 'h1': 
-          return self.cal_h1(start.puzzle, goal) + start.level
-        
-        if heuristics == 'h2':
-          return self.cal_h2(start.puzzle, goal) + start.level
-
-    Calcualtes the different between the given puzzles
-    def cal_h1(self, start, goal):
-        counter = 0
-        for i in range(0, self.n): #row
-            for j in range(0, self.n): #col
-                if start[i][j] != goal[i][j] and start[i][j] != '_':
-                    counter += 1 # Counts all squares that are in the wrong position
-        return counter
-
-    Manhattan Distance
-    def cal_h2(self, start, goal):
-        counter = 0
-
-        for i in range(0, self.n): #row
-            for j in range(0, self.n): #col
-                if start[i][j] != goal[i][j] and start[i][j] != '_':
-
-                    for x in range(0, self.n): 
-                        for y in range(0, self.n):
-                            if goal[x][y] == start[i][j]:
-                                x_pos = x
-                                y_pos = y
-                                break
-
-                    # calculate distance 
-                    manhattan = abs(i-x_pos) + abs(j-y_pos)
-
-                    counter += manhattan # Counts all manhattan distances of squares that are in the wrong position 
-
-        return counter
-        
-    Accept start and goal puzzle state
-    def solve_puzzle(self):
-        print('Enter puzzle at start state:')
-        start = self.define_puzzle()
-        # Enter own goal state
-        #print('Enter puzzle at goal state')
-        #goal = self.define_puzzle()
-  
-        #heuristics = heuristics.replace(' ', '')
-
-        print('h: ', heuristics)
-        
-        # Pre-defined goal, increasing order
-        goal = [['1', '2', '3'], ['4', '5', '6'],['7', '8', '_']]
-        #print("\ngoal: ", goal)
-        print('\nGoal State, increasing order:')
-        print("1 2 3\n4 5 6\n7 8 _")
-    
-        start = Node(start, 0, 0)
-        start.f = self.cal_f(start, goal) # calculate f by comparing start & goal state
-
-        # Put start node in open list
-        self.open.append(start)
-        #self.open.put(start)
-
-        # If open is empty exit the code
-        if not self.open:
-            print('ERROR.')
-            exit()
-
-        print('\n')
-        print('Solution: ')
-
-        iter = 0
-
-        while True:
-            current = self.open[0]
-            #current = self.open.get()
-
-            print('')
-
-            for i in current.puzzle:
-                for j in i:
-                    print(j, end = ' ')
-                print('')
-
-            # If goal node is reached
-            if heuristics == 'h1':
-                if(self.cal_h1(current.puzzle, goal) == 0): # reached if difference between current state and goal is 0
-                    break
-            if heuristics == 'h2':
-                if(self.cal_h2(current.puzzle, goal) == 0): # reached if difference between current state and goal is 0
-                    break
-
-            for i in current.get_child():
-                i.f = self.cal_f(i, goal)
-                #self.open.put(i)
-                #if not any(node.puzzle == i.puzzle for node in self.open) and not any(node.puzzle == i.puzzle for node in self.closed): #i.puzzle not in self.open:
-                    #self.open.append(i)
-                    #self.open.put(i)
-                if any(node.puzzle == i.puzzle for node in self.closed):
-                    for j in self.closed:
-                        if j.puzzle == i.puzzle and j.f > i.f: 
-                            index = self.closed.index(j)
-                            del self.closed[index]
-                            self.open.append(i)
-                            #print('delete closed node')
-
-                elif any(node.puzzle == i.puzzle for node in self.open):
-                    for j in self.open:
-                        if j.puzzle == i.puzzle and j.f > i.f:
-                            index = self.open.index(j)
-                            del self.open[index]
-                            self.open.append(i)
-                            #self.open[j] = self.open.pop()
-                            #self.open.put(i)
-                            #print('rewrite open node')
-                else:
-                    self.open.append(i)
-                    #print('add node to open')
-                
-                while not self.open.empty():
-                    if i.puzzle not in self.open.get() and i.puzzle not in self.closed.get():
-                        self.open.put(i)
-                
-
-            self.closed.append(current)
-            #self.closed[current.get_key()] = current
-
-            iter += 1
-
-            del self.open[0]
-            #for i in self.open:
-             #   print(i.puzzle)
-
-            # sort open list based of f value
-            self.open.sort(key = lambda x:x.f, reverse = False)
-
-        print('iterations: ', iter)
-
-st = time.process_time()
-
-puz = Puzzle(3) # n = 3
-puz.solve_puzzle()
-
-et = time.process_time()
-
-print('time: ', et-st, 'seconds')'''
-
-
-
-# make heap queue
