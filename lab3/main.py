@@ -28,9 +28,12 @@ class Clause:
 
 
     def is_subset(self, other):
-        #return self.p.issubset(other.p) and self.n.issubset(other.n)
+
+        return self.p.issubset(other.p) and self.n.issubset(other.n)
+        '''if len(self.p) > len(other.p) or len(self.n) > len(other.n):
+            return False
         if self.p <= other.p and self.n <= other.n:
-         return True
+            return True'''
         
         return False
     
@@ -45,19 +48,22 @@ class Clause:
 def resolution(A, B): # A: clause, B: clause
     #print('A = ', A, ', B = ', B)
 
-    if not (A.p.intersection(B.n)) and not (A.n.intersection(B.p)):
+    A_copy = copy.deepcopy(A)
+    B_copy = copy.deepcopy(B)
+
+    if not (A_copy.p.intersection(B_copy.n)) and not (A_copy.n.intersection(B.p)):
         return False # There is no solution (no intersection)
     
-    if (A.p.intersection(B.n)):
-        a = random.choice(list(A.p.intersection(B.n)))
-        A.p.remove(a) # Removes element a from the set if its in the intersection
-        B.n.remove(a)
+    if (A_copy.p.intersection(B_copy.n)):
+        a = random.choice(list(A_copy.p.intersection(B_copy.n)))
+        A_copy.p.remove(a) # Removes element a from the set if its in the intersection
+        B_copy.n.remove(a)
     else:
         a = random.choice(list(A.n.intersection(B.p)))
-        A.n.remove(a) 
-        B.p.remove(a)
+        A_copy.n.remove(a) 
+        B_copy.p.remove(a)
 
-    C = Clause(p = set(A.p).union(B.p), n = set(A.n).union(B.n))
+    C = Clause(p = set(A_copy.p).union(B_copy.p), n = set(A_copy.n).union(B_copy.n))
     #C.p.add(A.p.union(B.p)) # Adds the union 
     #C.n.add(A.n.union(B.n))
     if C.p.intersection(C.n): # C is tautology(always true)
@@ -69,50 +75,56 @@ def resolution(A, B): # A: clause, B: clause
 
 def solver(KB):
 
-    KB_prim = set()
+    print('KB: ')
+    for C in KB: 
+        print(' ', C)
 
-    while (KB_prim != KB):
+
+    while True:
         
         S = set()
-        KB = copy.deepcopy(KB)
-        #KB_prim = copy.deepcopy(KB) 
+        #KB_copy = copy.deepcopy(KB)
+        KB_prim = copy.deepcopy(KB) 
 
         #print('KB: ', KB)
 
-        #for A,B in enumerate(KB): 
-        for A in KB: 
-            for B in KB:
-                C = resolution(A, B)
+        #for A,B in enumerate(KB):
+        my_list = list(KB)
+
+        for i in range(len(KB)-1):
+            for j in range(i+1, len(KB)):
+                C = resolution(my_list[i], my_list[j])
                 if C is not False:
                     S = S | set({C})
         
         if not S:
-            print('hello?')
             return KB
         
-        print('hello???')
-
         KB = incorporate(S, KB)
-        
-        print('KB: ')
-        for C in KB: 
-            print(C)
 
         print('S: ')
         for C in S:
-            print(C)
+            print(' ', C)
+
+        print('KB: ')
+        for C in KB: 
+            print(' ', C)
+
         print()
-    
+
+        if KB_prim == KB:
+            break
+
     return KB
 
 
 def incorporate(S, KB): # S: set of clauses, KB: set of clauses
-    for A in S:
+    for A in copy.deepcopy(S):
         KB = incorporate_clause(A, KB)
     return KB
 
 def incorporate_clause(A, KB): # A: clause, KB: Set of clauses
-    for B in KB:
+    for B in copy.deepcopy(KB):
         if B.is_subset(A):
             return KB
     
@@ -175,6 +187,7 @@ result5 = A5.is_strict_subset(B5)
 result6 = A5.is_subset(B5)
 print('Strict Subset 5: ', result5)
 
+print('\nBob\n')
 # Drawing conclusion
 # Bob.
 ice = 'a'
@@ -189,10 +202,27 @@ D4 = Clause(p = {}, n = {'movie', 'ice'})
 E4 = Clause(p = {'sun', 'money', 'cry'}, n = {})
 F4 = Clause(p = {'movie'}, n = {})
 
-KB = set({A4, B4, C4, D4, E4, F4})
-result4 = solver(KB)
-#print('KB: ', result4)
+KB = set({A4, C4, D4, E4, F4})
+KB1 = incorporate(S={}, KB=KB)
+result4 = solver(KB1)
+print('KB: ', result4)
 print('\nFinal Clauses: ')
 for C in result4: 
     print(C)
 
+
+print('\nIs A suspicious?\n')
+# Task B - Robbery puzzle
+A5 = Clause(p = {'a', 'b', 'c'}, n = {})
+B5 = Clause(p = {'a'}, n = {'c'})
+C5 = Clause(p = {'a', 'c'}, n = {'b'})
+
+# a V b V c
+# c -> a        =   -c V a
+# b -> c V a    =   -b V c V a
+
+KB = set({A5, B5, C5})
+result5 = solver(KB)
+print('\nFinal Clauses: ')
+for C in result5: 
+    print(C)
