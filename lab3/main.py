@@ -202,8 +202,8 @@ D4 = Clause(p = {}, n = {'movie', 'ice'})
 E4 = Clause(p = {'sun', 'money', 'cry'}, n = {})
 F4 = Clause(p = {'movie'}, n = {})
 
-KB = set({A4, C4, D4, E4, F4})
-KB1 = incorporate(S={}, KB=KB)
+KB = set({A4, B4, C4, D4, E4, F4})
+KB1 = incorporate(S={}, KB=KB) # To remove B4 as a clauses
 result4 = solver(KB1)
 print('KB: ', result4)
 print('\nFinal Clauses: ')
