@@ -1,0 +1,127 @@
+% Task A - Shakey
+
+% Action: Go from one location to another location
+act(go(Pos, NewPos),                                 % Action name
+     [in(s, Pos), on(s, floor), connect(Pos, NewPos)],      % Preconditions
+     [in(s, Pos)],                                       % Delete
+     [in(s, NewPos)]                                     % Add
+).
+
+% Action: Push the box in between rooms
+act(push(Box, Pos, NewPos),
+     [box(Box), on(s, floor), in(s, Pos), in(Box, Pos), connect(Pos, NewPos)],
+     [in(s, Pos), in(Box, Pos)],
+     [in(s, NewPos), in(Box, NewPos)]
+).
+
+% Action: Push the box within the room
+act(push(Box, Pos, NewPos),
+     [box(Box), on(s, floor), in(s, Pos), in(Box, Pos), connect(Pos, NewPos), light(Switch, true)],
+     [in(s, Pos), in(Box, Pos)],
+     [in(s, NewPos), in(Box, NewPos)]
+).
+
+% Action: Climb up on a box
+act(climbUp(Box),
+     [box(Box), on(s, floor), in(s, Pos), in(Box, Pos)],
+     [on(s, floor)],
+     [on(s, Box)]
+).
+
+% Action: Climb down from a box
+act(climbDown(Box),
+     [box(Box), on(s, Box), in(s, Room), in(Box, Room)],
+     [on(s, Box)],
+     [on(s, floor)]
+).
+
+% Action: Turn on the light switch
+act(turnOn(Switch),
+     [box(Box), light(Switch, false), in(Box, Switch), in(s, Switch), on(s, Box)],
+     [light(L, false)],
+     [light(L, true)]
+).
+
+% Action: Turn off the light switch
+act(turnOff(Switch),
+     [box(Box), light(Switch, true), in(Box, Switch), in(s, Switch), on(s, Box)],
+     [light(S, true)],
+     [light(S, false)]
+).
+
+% Goal States
+%goal_state([in(s, room1)]). % Move Shakey from room3 to room1
+goal_state([light(switch1, false)]). % Switch off the light in room1
+%goal_state([in(box2, room2)]). % Get box2 into room2
+
+% Set up Shakey's world
+initial_state([
+
+  % Set up Shakey
+  shakey(s),
+  in(s, room3),
+  on(s, floor),
+  
+  % Boxes
+  box(box1),
+  in(box1, room1),
+  
+  box(box2),
+  in(box2, room1),
+  
+  box(box3),
+  in(box3, room1),
+  
+  box(box4),
+  in(box4, room1),
+
+  % Rooms
+  room(room1),
+  room(room2),
+  room(room3),
+  room(room4),
+  room(corridor),
+  
+  % Connections
+  connect(room1, corridor), % from room to corridor
+  connect(room2, cooridor),
+  connect(room3, corridor),
+  connect(room4, corridor),
+  
+  connect(corridor, room1), % from corridor to room
+  connect(corridor, room2),
+  connect(corridor, room3),
+  connect(corridor, room4),
+  
+  connect(room1, switch1),
+  connect(room2, switch2),
+  connect(room3, switch3),
+  connect(room4, switch4),
+
+  in(switch1, room1),
+  in(switch2, room2),
+  in(switch3, room3),
+  in(switch4, room4),
+
+  % Light switches
+  light(switch1, true),
+  light(switch2, false),
+  light(switch3, false),
+  light(switch4, true)
+
+]).
+  
+
+
+
+  
+  
+  
+  
+  
+  
+
+
+
+
+

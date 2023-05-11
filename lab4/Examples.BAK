@@ -1,0 +1,8 @@
+:- use_module(library(clpfd)).
+
+% Examples 1
+% ---------------------
+generate(1).
+generate(X) :- generate(Y), X is Y+1.
+test(10000).
+goal :- generate(X), test(X), write(X).
